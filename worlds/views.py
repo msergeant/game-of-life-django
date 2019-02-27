@@ -3,13 +3,17 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+from .models import World
+
 @csrf_exempt
 def next_world(request):
     response = _cors_response()
     if request.method.lower() == 'options':
         return response
     else:
-        response.write(json.dumps( {'live_cells': []} ))
+        live_cells = json.loads(request.body)['live_cells']
+        world = World(live_cells).next_iteration()
+        response.write(json.dumps( {'live_cells': world.live_cells()} ))
         return response
 
 def _cors_response():
